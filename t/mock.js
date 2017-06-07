@@ -99,7 +99,7 @@ describe( "The rudiments should work", () => {
             myTestClass.myMethod( 'Hello, John!', 1 );
         }
         catch( e ) {
-            assert.ok( /expected value Hello, World! got Hello, John!/.test(e), `Error expresses an incorrect argument type: ${e}` );
+            assert.ok( /'Hello, World!' deepEqual 'Hello, John!'/.test(e), `Error expresses an incorrect argument type: ${e}` );
         }
 
         // fails even if optional args are wrong ( although not missing )
@@ -107,11 +107,30 @@ describe( "The rudiments should work", () => {
             myTestClass.myMethod( 'Hello, World!', 1, 'Bacon' );
         }
         catch ( e ) {
-            assert.ok( /Argument 2: expected value Sausages got Bacon/.test(e), `Error expresses incorrect optional value: ${e}` );
+            assert.ok( /'Sausages' deepEqual 'Bacon'/.test(e), `Error expresses incorrect optional value: ${e}` );
         }
 
         assert.equal( myTestClass.myMethod( 'Hello, World!', 1 ), 'I ran fine' );
 
+    });
+
+    it ( "should be able to discern object similarities", () => {
+        classMock.mock( 'myMethod', function () { return 'I ran fine'; } )
+            .shouldHaveArguments([
+                { type: 'object', value: { num: 1, arr: [ 1, 2, 3] } },
+                { type: 'object', value: [ 'a', 'b', 'c' ] }
+            ]);
+
+        // no args
+        try {
+            myTestClass.myMethod(
+                { num: 1, arr: [ 1, 2, 3 ] },
+                [ 'a', 'b' ]
+            );
+        }
+        catch( e ) {
+            assert.ok( /AssertionError.+?deepEqual/.test(e), `Error expresses a lack of arguments: ${e}` );
+        }
     });
 });
 
@@ -182,3 +201,5 @@ describe ( "It should allow you to mock multiple methods", () => {
         assert.equal( myTestClass.proxyMethod(), 5 );
     });
 });
+
+

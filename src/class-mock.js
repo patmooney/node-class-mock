@@ -13,8 +13,8 @@ class MockObject {
                 if ( argumentDescriptor[i].type && typeof( e ) !== argumentDescriptor[i].type ) {
                     assert.fail( `Argument ${i}: expected ${argumentDescriptor[i].type} got ${typeof( e )}` );
                 }
-                if ( argumentDescriptor[i].value && argumentDescriptor[i].value !== e ){
-                    assert.fail( `Argument ${i}: expected value ${argumentDescriptor[i].value} got ${e}` );
+                if ( argumentDescriptor[i].value ){
+                    assert.deepEqual( argumentDescriptor[i].value, e );
                 }
                 if ( argumentDescriptor[i].like ){
                     if ( typeof( e ) !== "String" ) {

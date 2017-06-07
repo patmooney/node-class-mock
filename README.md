@@ -55,3 +55,12 @@ When calling **mock** you will receive back an object which exposes these method
 
 
 ... to continue
+
+### To develop ###
+
+    npm install
+    npm test
+
+### To compile ###
+
+    babel src/class-mock.js -o lib/class-mock.js
