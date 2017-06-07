@@ -5,26 +5,29 @@ class MockObject {
         // TODO: verify the descriptor makes sense
         this.checkStack.push( ( args ) => {
             let expectedArgs = argumentDescriptor.filter( a => ! a.optional ).length;
-            if ( args.length < expectedArgs ) {
+            if ( args.length < expectedArgs || args.length > argumentDescriptor.length ) {
                 assert.fail( `Expected ${expectedArgs} arguments but received ${args.length}` );
             }
 
-            args.forEach( ( e, i ) => {
-                if ( argumentDescriptor[i].type && typeof( e ) !== argumentDescriptor[i].type ) {
-                    assert.fail( `Argument ${i}: expected ${argumentDescriptor[i].type} got ${typeof( e )}` );
+            for ( let i = 0; i < Math.min( args.length, argumentDescriptor.length ); i++ ){
+                let desc = argumentDescriptor[i];
+                let arg = args[i];
+
+                if ( desc.type && typeof( arg ) !== desc.type ) {
+                    assert.fail( `Argument ${i}: expected ${desc.type} got ${typeof( arg )}` );
                 }
-                if ( argumentDescriptor[i].value ){
-                    assert.deepEqual( argumentDescriptor[i].value, e );
+                if ( desc.value ){
+                    assert.deepEqual( desc.value, arg );
                 }
-                if ( argumentDescriptor[i].like ){
-                    if ( typeof( e ) !== "String" ) {
-                        assert.fail( `Argument ${i}: expected String got ${typeof( e )}` );
+                if ( desc.like ){
+                    if ( typeof( arg ) !== "String" ) {
+                        assert.fail( `Argument ${i}: expected String got ${typeof( arg )}` );
                     }
-                    else if ( ! argumentDescriptor[i].like.test( e ) ){
-                        assert.fail( `Argument ${i}: expected value like ${argumentDescriptor[i].like.toString()} got ${e}` );
+                    else if ( ! desc.like.test( arg ) ){
+                        assert.fail( `Argument ${i}: expected value like ${desc.like.toString()} got ${arg}` );
                     }
                 }
-            });
+            }
 
             return true;
         });

@@ -21,44 +21,45 @@ const classMock = new ClassMock( TestClass );
 
 describe( "The rudiments should work", () => {
     it ( "Should be able to mock and unmock classes", () => {
-        let didRun = 0, didFail = 0;
 
         // should throw
-        try { myTestClass.myMethod(); }
-        catch ( e ) {
-            didFail++;
-            assert.ok( /I should be overriden/.test( e ), 'Javascript seems to be working' );
-        }
+        assert.throws(
+            () => myTestClass.myMethod(),
+            /I should be overriden/
+        );
 
         // should be mocked
-        classMock.mock( 'myMethod', () => { didRun++; } );
-        myTestClass.myMethod();
+        classMock.mock( 'myMethod', () => {} );
+        assert.doesNotThrow( () => myTestClass.myMethod() );
 
         // should throw after specific unmock
         classMock.unMock( 'myMethod' );
-        try { myTestClass.myMethod(); }
-        catch ( e ) { didFail++; }
+        assert.throws(
+            () => myTestClass.myMethod(),
+            /I should be overriden/
+        );
 
         // should be mocked again
-        let methodMock = classMock.mock( 'myMethod', () => { didRun++; } );
-        myTestClass.myMethod();
+        let methodMock = classMock.mock( 'myMethod', () => {} );
+        assert.doesNotThrow( () => myTestClass.myMethod() );
 
         // should throw after unmocking on the method mock object
         methodMock.unMock();
-        try { myTestClass.myMethod(); }
-        catch ( e ) { didFail++; }
+        assert.throws(
+            () => myTestClass.myMethod(),
+            /I should be overriden/
+        );
 
         // should be mocked again
-        classMock.mock( 'myMethod', () => { didRun++; } );
-        myTestClass.myMethod();
+        classMock.mock( 'myMethod', () => {} );
+        assert.doesNotThrow( () => myTestClass.myMethod() );
 
         // should throw after unmocking ALL methods
         classMock.unMockAll();
-        try { myTestClass.myMethod(); }
-        catch ( e ) { didFail++; }
-
-        assert.equal( didFail, 4, "The method failed as expected" );
-        assert.equal( didRun, 3, "The overriden method works fine" );
+        assert.throws(
+            () => myTestClass.myMethod(),
+            /I should be overriden/
+        );
     });
 
     it ( "should allow the stipulation of argument tests", () => {
@@ -71,47 +72,41 @@ describe( "The rudiments should work", () => {
             ]);
 
         // no args
-        try {
-            myTestClass.myMethod();
-        }
-        catch( e ) {
-            assert.ok( /Expected 2 arguments but received 0/.test(e), `Error expresses a lack of arguments: ${e}` );
-        }
+        assert.throws(
+            () => myTestClass.myMethod(),
+            /Expected 2 arguments but received 0/,
+            'Error expresses a lack of arguments'
+        );
 
         // not enough args
-        try {
-            myTestClass.myMethod( 'Hello, World!' );
-        }
-        catch( e ) {
-            assert.ok( /Expected 2 arguments but received 1/.test(e), `Error expresses a lack of arguments: ${e}` );
-        }
+        assert.throws(
+            () => myTestClass.myMethod( 'Hello, World!' ),
+            /Expected 2 arguments but received 1/,
+            'Error expresses a lack of arguments'
+        );
 
         // wrong type args
-        try {
-            myTestClass.myMethod( new Object(), /e/ );
-        }
-        catch( e ) {
-            assert.ok( /expected string got object/.test(e), `Error expresses an incorrect argument type: ${e}` );
-        }
+        assert.throws(
+            () => myTestClass.myMethod( new Object(), /e/ ),
+            /expected string got object/,
+            'Error expresses an incorrect argument type'
+        );
 
         // wrong value args
-        try {
-            myTestClass.myMethod( 'Hello, John!', 1 );
-        }
-        catch( e ) {
-            assert.ok( /'Hello, World!' deepEqual 'Hello, John!'/.test(e), `Error expresses an incorrect argument type: ${e}` );
-        }
+        assert.throws(
+            () => myTestClass.myMethod( 'Hello, John!', 1 ),
+            /'Hello, World!' deepEqual 'Hello, John!'/,
+            'Error expresses an incorrect argument type'
+        );
 
         // fails even if optional args are wrong ( although not missing )
-        try {
-            myTestClass.myMethod( 'Hello, World!', 1, 'Bacon' );
-        }
-        catch ( e ) {
-            assert.ok( /'Sausages' deepEqual 'Bacon'/.test(e), `Error expresses incorrect optional value: ${e}` );
-        }
+        assert.throws(
+            () => myTestClass.myMethod( 'Hello, World!', 1, 'Bacon' ),
+            /'Sausages' deepEqual 'Bacon'/,
+            'Error expresses incorrect optional value'
+        );
 
         assert.equal( myTestClass.myMethod( 'Hello, World!', 1 ), 'I ran fine' );
-
     });
 
     it ( "should be able to discern object similarities", () => {
@@ -122,15 +117,23 @@ describe( "The rudiments should work", () => {
             ]);
 
         // no args
-        try {
-            myTestClass.myMethod(
-                { num: 1, arr: [ 1, 2, 3 ] },
-                [ 'a', 'b' ]
-            );
-        }
-        catch( e ) {
-            assert.ok( /AssertionError.+?deepEqual/.test(e), `Error expresses a lack of arguments: ${e}` );
-        }
+        assert.throws(
+            () => myTestClass.myMethod( { num: 1, arr: [ 1, 2, 3 ] }, [ 'a', 'b' ] ),
+            /AssertionError.+?deepEqual/,
+            'Error expresses an incorrect deep value'
+        );
+    });
+
+    it ( "should fail if there are unexpected arguments", () => {
+        classMock.mock( 'myMethod', function () { return 'I ran fine'; } )
+            .shouldHaveArguments([
+                {}, { optional: true }
+            ]);
+
+        assert.throws( () => myTestClass.myMethod() );
+        assert.doesNotThrow( () => myTestClass.myMethod( 1 ) );
+        assert.doesNotThrow( () => myTestClass.myMethod( 1, 2 ) );
+        assert.throws( () => myTestClass.myMethod( 1, 2, 3 ) );
     });
 });
 
@@ -163,16 +166,10 @@ describe ( "It should allow you to stipulate the return type/value", () => {
             .throws( 'Such Error!' )
             .shouldHaveArguments([ { type: 'object' } ]);
 
-        let didThrow = false;
-        try {
-            myTestClass.myMethod( new Object() );
-        }
-        catch( e ) {
-            assert.equal( e, 'Such Error!' );
-            didThrow = true;
-        }
-
-        assert.ok( didThrow );
+        assert.throws(
+            () => myTestClass.myMethod( new Object() ),
+            'Such Error!'
+        );
     });
 
     it ( "should return whatever you want it to", () => {
@@ -201,5 +198,3 @@ describe ( "It should allow you to mock multiple methods", () => {
         assert.equal( myTestClass.proxyMethod(), 5 );
     });
 });
-
-
