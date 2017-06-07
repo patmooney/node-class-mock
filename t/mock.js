@@ -1,5 +1,5 @@
 import assert from 'assert';
-import ClassMock from '../class-mock';
+import ClassMock from '../src/class-mock';
 
 class TestClass {
     myMethod () {
