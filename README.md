@@ -72,7 +72,7 @@ When calling **mock** on the mock-father you will receive back an object which e
 
     Provide a list of expected arguments, assert.fail if any are amiss
 
- - ###### Arguments ######
+    ###### Arguments ######
 
     - **argumentDescriptorList** [Array|Object] - A list of objects describing each expected parameter
 
@@ -116,8 +116,6 @@ When calling **mock** on the mock-father you will receive back an object which e
 
     Reinstate the original function
 
-... to be continued
-
 ### To develop ###
 
     npm install
@@ -126,3 +124,5 @@ When calling **mock** on the mock-father you will receive back an object which e
 ### To compile ###
 
     babel src/class-mock.js -o lib/class-mock.js
+
+### ... to be continued ###
