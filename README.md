@@ -8,9 +8,10 @@ This will replace the method on our TestClass prototype to a method which firstl
 the arguments passed to it and will assert.fail in the event of errors. It will then return
 a resolved Promise with the given output.
 
-    const myTestClass = new TestClass();
+    // First, instantiate ClassMock with the class you would like to mock
     const classMock = new ClassMock( TestClass );
 
+    // Then replace one of the methods
     const methodMock = classMock.mock( 'myMethod' )
         .shouldHaveArguments([
             { type: 'string', value: 'Hello, World!' },
@@ -18,6 +19,17 @@ a resolved Promise with the given output.
             { type: 'string', value: 'Sausages', optional: true }
         ])
         .resolves( 'Such Promise resolution!' )
+
+    // Then anything which calls your mocked-method will
+    // have it's inputs checked and receieve a resolved promise
+    // ( other outcomes are available )
+    const myTestClass = new TestClass();
+    myTestClass.doStuff( 'Hello, World!', 1 ).then(
+        out => console.log( 'Hey, my test works!' )
+    );
+
+    // Finally, remember to un-mock!
+    methodMock.unMock();
 
 To start-a-mocking, simply instantiate a ClassMock with your desired class ( non instantiated ). The ClassMock object exposes the following methods...
 
