@@ -8,6 +8,8 @@ This will replace the method on our TestClass prototype to a method which firstl
 the arguments passed to it and will assert.fail in the event of errors. It will then return
 a resolved Promise with the given output.
 
+``` javascript
+
     // First, instantiate ClassMock with the class you would like to mock
     const classMock = new ClassMock( TestClass );
 
@@ -31,6 +33,8 @@ a resolved Promise with the given output.
     // Finally, remember to un-mock!
     methodMock.unMock();
 
+```
+
 To start-a-mocking, simply instantiate a ClassMock with your desired class ( non instantiated ). The ClassMock object exposes the following methods...
 
 ## ClassMock ##
@@ -38,29 +42,29 @@ To start-a-mocking, simply instantiate a ClassMock with your desired class ( non
 This can be considered the mock factory or the mock father or the mock-mack-daddy. Having instantiated it with your desired class, it
 will produce little method mock children.
 
- - ### mock ###
+ - **mock**
 
     Main entry for overriding methods
 
-    ###### Arguments ######
+    **Arguments**
 
     - **methodName** [Stirng] - Name of class method to override
     - **callback** [Function, Optional] - Function to use as mock
     - **context** [Object, Optional] - An instantiated object which acts as **this** in your override method
 
-    ###### Returns ######
+    **Returns**
 
     -   **methodMock** [Object] - A representation of the mock dynamic
 
- - ### unMock ###
+ - **unMock**
 
     Reinstates original method
 
-    ###### Arguments #####
+    **Arguments**
 
     - **methodName** [String] - Name of method to reinstate
 
- - ### unMockAll ###
+ - **unMockAll**
 
     Reinstate all mocked methods
 
@@ -68,11 +72,11 @@ will produce little method mock children.
 
 When calling **mock** on the mock-father you will receive back an object which exposes these methods...
 
- - ### shouldHaveArguments ###
+ - **shouldHaveArguments**
 
     Provide a list of expected arguments, assert.fail if any are amiss
 
-    ###### Arguments ######
+    **Arguments**
 
     - **argumentDescriptorList** [Array|Object] - A list of objects describing each expected parameter
 
@@ -80,39 +84,39 @@ When calling **mock** on the mock-father you will receive back an object which e
         - type - The *typeof* the argument
         - optional - Some arguments are optional
 
- - ### resolves ###
+ - **resolves**
 
     The overriden method will result in a resolved Promise being returned with the given value.
 
-    ###### Arguments #####
+    **Arguments**
 
     - **output** - Value to resolve
 
- - ### rejects ###
+ - **rejects**
 
     The overriden method will result in a rejected Promise being returned with the given error.
 
-    ###### Arguments #####
+    **Arguments**
 
     - **error** - Value to reject
 
- - ### returns ###
+ - **returns**
 
     The overriden method will result in the specified value being returned.
 
-    ###### Arguments #####
+    **Arguments**
 
     - **output** - Value to reject
 
- - ### throws ###
+ - **throws**
 
     The overriden method will result in the given error being thrown
 
-    ###### Arguments #####
+    **Arguments**
 
     - **error** - Value to throw
 
- - ### unMock ###
+ - **unMock**
 
     Reinstate the original function
 

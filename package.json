@@ -1,6 +1,6 @@
 {
   "name": "node-class-mock",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A simple means to mock mathods within the prototype of ECMA6 classes ( or the transposed expression of such classes )",
   "main": "lib/class-mock.js",
   "scripts": {
