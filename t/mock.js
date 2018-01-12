@@ -20,6 +20,14 @@ const myTestClass = new TestClass();
 const classMock = new ClassMock( TestClass );
 
 describe( "The rudiments should work", () => {
+
+    it ( "Should not accept instantiated classes", () => {
+        assert.throws(
+            () => { new ClassMock( new TestClass() ); },
+            /un\-instantiated classes/
+        );
+    });
+
     it ( "Should be able to mock and unmock classes", () => {
 
         // should throw

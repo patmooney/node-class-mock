@@ -80,6 +80,9 @@ class MockObject {
 export default class {
 
     constructor ( classObject ) {
+        if ( typeof( classObject ) !== 'function' ){
+            throw('node-class-mock can only be used by un-instantiated classes');
+        }
         this.subject = classObject;
         this.__MOCK = {};
     }
@@ -93,13 +96,38 @@ export default class {
     * @param {Object} [context] - An instantiated class to act as 'this' in your callback
     * @returns {Function} [mockObject]
     */
-    mock ( methodName, cb = function () { return true; }, context ) {
+    mock ( methodName, ...rest ) {
+        if ( typeof( this.subject[methodName] ) === 'function' ) {
+            return this._mockStatic( methodName, ...rest );
+        }
+        return this._mockMethod( methodName, ...rest );
+    }
+
+    _mockMethod ( methodName, cb = function () { return true; }, context ) {
         if ( ! this.__MOCK[methodName] ) {
-            this.__MOCK[methodName] = this.subject.prototype[methodName];
+            this.__MOCK[methodName] = { type: 'dynamic', def: this.subject.prototype[methodName] };
         }
 
         let mockObject = new MockObject( cb, () => this.unMock( methodName ) );
         this.subject.prototype[methodName] = ( ...args ) => {
+            if ( mockObject.execute(args) ){
+                let executable = context ?
+                    mockObject.outcome.bind( context ) :
+                    mockObject.outcome;
+                return executable( ...args );
+            }
+        };
+
+        return mockObject;
+    }
+
+    _mockStatic ( methodName, cb = function () { return true; }, context ) {
+        if ( ! this.__MOCK[methodName] ) {
+            this.__MOCK[methodName] = { type: 'static', def: this.subject[methodName] };
+        }
+
+        let mockObject = new MockObject( cb, () => this.unMock( methodName ) );
+        this.subject[methodName] = ( ...args ) => {
             if ( mockObject.execute(args) ){
                 let executable = context ?
                     mockObject.outcome.bind( context ) :
@@ -118,7 +146,13 @@ export default class {
     * @param {String} [methodName]  - name of method to remove override
     */
     unMock( methodName ) {
-        this.subject.prototype[methodName] = this.__MOCK[methodName];
+        let methodDef = this.__MOCK[methodName];
+        if ( methodDef.type === 'static' ) {
+            this.subject[methodName] = methodDef.def;
+        }
+        else {
+            this.subject.prototype[methodName] = methodDef.def;
+        }
         delete this.__MOCK[methodName];
     }
 
